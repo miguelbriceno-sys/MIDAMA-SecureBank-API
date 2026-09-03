@@ -1,15 +1,58 @@
-# Semana 01 - Ciclo DevSecOps
+# MIDAMA - SecureBank API
+
+Proyecto académico desarrollado para la asignatura **Sistemas Automatizados - DevSecOps**.
+
+El objetivo del proyecto es trabajar durante el semestre sobre una aplicación real y deliberadamente vulnerable, **SecureBank API**, incorporando progresivamente controles de seguridad hasta construir una plataforma DevSecOps completa y automatizada.
+
+## Equipo
+
+- Daniel Silva
+- Antonella Mancilla
+- Allen Ramirez
+- Miguel Briceño
 
 ## Proyecto
-SecureBank API
 
-## Objetivo
+SecureBank API simula un backend bancario con funcionalidades como:
 
-Diseñar un ciclo DevSecOps aplicable a SecureBank API, integrando controles de seguridad durante todo el ciclo de vida del desarrollo de software.
+- Autenticación de usuarios.
+- Consulta de cuentas.
+- Transferencias de dinero.
+- Creación de usuarios.
+- Consulta de movimientos.
+- Uso de contenedores Docker.
+- Despliegue automatizado.
+- Pipeline CI/CD.
+
+## Objetivo DevSecOps
+
+Integrar seguridad durante todo el ciclo de vida del desarrollo de software, aplicando principios como:
+
+- Security as Code.
+- Shift Left Security.
+- Shift Right Security.
+- Continuous Security.
+- Security Automation.
+- Shared Responsibility.
+- Continuous Feedback.
+
+## Vulnerabilidades iniciales
+
+SecureBank API contiene vulnerabilidades deliberadas que serán abordadas progresivamente durante el semestre:
+
+1. Credenciales almacenadas directamente en el código.
+2. Dependencias vulnerables.
+3. SQL Injection.
+4. Autorización insuficiente.
+5. Contenedor ejecutándose como usuario root.
+6. Gestión insegura de secretos.
+7. Configuraciones cloud deficientes.
+8. Ausencia de monitoreo y trazabilidad.
+9. Pipeline CI/CD sin controles de seguridad.
 
 ## Ciclo DevSecOps propuesto
 
-El ciclo considera las siguientes fases:
+El proyecto considera las siguientes fases:
 
 1. Plan
 2. Code
@@ -20,36 +63,46 @@ El ciclo considera las siguientes fases:
 7. Operate
 8. Monitor
 
-## Controles propuestos por fase
+Cada fase incorpora controles de seguridad, herramientas automatizadas y responsables definidos.
 
-| Fase | Control de seguridad | Herramienta | Responsable |
-|---|---|---|---|
-| Plan | Modelado de amenazas y requisitos de seguridad | OWASP Threat Dragon | Arquitecto / Product Owner |
-| Code | SAST y detección de secretos | Semgrep / Gitleaks | Desarrollador |
-| Build | Análisis de dependencias e imágenes | Trivy | Dev / DevOps |
-| Test | DAST y pruebas de autorización | OWASP ZAP | QA / Security |
-| Release | SBOM y firma de artefactos | Syft / Cosign | DevOps |
-| Deploy | Escaneo IaC y políticas de seguridad | Checkov | DevOps / Cloud |
-| Operate | Gestión de secretos y hardening | Vault | Operations / SRE |
-| Monitor | Logging, SIEM, telemetría y alertas | Wazuh / Grafana | SOC / SRE |
+## Entregables
 
-## Principios DevSecOps considerados
+### Semana 01 - Ciclo DevSecOps
 
-- Security as Code
-- Shift Left Security
-- Shift Right Security
-- Continuous Security
-- Security Automation
-- Shared Responsibility
-- Continuous Feedback
+Se desarrolló el ciclo DevSecOps propuesto para SecureBank API.
 
-## Entregable
+Incluye:
 
-El entregable de esta semana corresponde a un diagrama de una página del ciclo DevSecOps propuesto para SecureBank API.
+- Las 8 fases del Secure SDLC.
+- Controles de seguridad por fase.
+- Herramientas propuestas.
+- Roles responsables.
+- Diagrama del ciclo DevSecOps.
+- Documentación de la actividad.
 
-El diagrama debe incluir:
+Archivos:
 
-- Las 8 fases del ciclo.
-- Al menos un control de seguridad por fase.
-- Una herramienta por fase.
-- El rol responsable de cada control.
+- `docs/semana-01/README.md`
+- `docs/semana-01/ciclo-devsecops.pdf`
+- `docs/semana-01/ciclo-devsecops.png`
+
+### Semana 02
+
+Pendiente de incorporación.
+
+### Semana 03
+
+Pendiente de incorporación.
+
+## Estructura del repositorio
+
+```text
+MIDAMA-SecureBank-API/
+│
+├── docs/
+│   └── semana-01/
+│       ├── README.md
+│       ├── ciclo-devsecops.pdf
+│       └── ciclo-devsecops.png
+│
+└── README.md

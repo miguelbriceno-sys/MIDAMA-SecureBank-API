@@ -1,6 +1,6 @@
 # Configuración de GitHub requerida por las sesiones 2 y 4
 
-La revisión inicial del 01-10-2026 devolvió `main.protected=false`. No confundir los archivos de política con reglas activas en GitHub.
+La revisión inicial del 01-10-2026 devolvió `main.protected=false`. Después se activó y verificó la [regla de main](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/settings/branch_protection_rules/84077806), con los requisitos siguientes. La aprobación independiente del PR sigue pendiente.
 
 ## Regla de main
 
@@ -22,4 +22,4 @@ Cada integrante configura una clave GPG o SSH propia, registra la clave pública
 
 ## Evidencia a conservar
 
-Enlace al PR, aprobador distinto del autor, SHA final, checks verdes, artefacto `dist-<SHA>`, estado de protección y firmas. Crear una política no acredita su cumplimiento. El conector disponible permite archivos, commits y PR, pero no configurar protección ni MFA; estos pasos permanecen pendientes hasta validarlos en Settings.
+Enlace al PR, aprobador distinto del autor, SHA final, checks verdes, artefacto `dist-<SHA>`, estado de protección y firmas. Crear una política no acredita su cumplimiento. La protección se configuró y verificó desde Settings con acceso autorizado. MFA es configuración de cuenta y sigue pendiente de verificación para cada integrante. Antes de integrar el PR #2 hace falta aprobación independiente y resolver el requisito de firma.

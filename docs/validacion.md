@@ -23,7 +23,8 @@ Se probó registro/login, rechazo de credenciales inválidas, BOLA en cuentas/mo
 | Auditoría mínima con hash encadenado | Implementada; storage externo, retención e integridad anclada pendientes |
 | CI con build/test/artefactos y Gitleaks | Verificado en GitHub Actions: Gitleaks y build-test aprobados, artefactos publicados |
 | CODEOWNERS | Cuenta de Miguel confirmada; verificar cuentas restantes y permisos |
-| Main protegida, revisión independiente, firmas y checks obligatorios | Pendiente de configuración/validación administrativa |
+| Main protegida y checks obligatorios | Activado y verificado: PR, ≥1 aprobación, Code Owners, stale reviews, conversaciones resueltas, firmas, rama actualizada y checks build-test/secrets-scan; sin bypass, force push ni borrado |
+| Revisión independiente y firma de la entrega | PR #2 pendiente de aprobación de otro integrante; comprobar commit firmado antes de integrar |
 | MFA de integrantes | Pendiente de verificación individual; no accesible mediante contenido del repo |
 | Repositorio privado en organización UBO | El repo recibido es público y personal; decisión y acceso docente pendientes |
 | TLS, red privada, cloud, backups, WAF y monitoreo | Arquitectura propuesta; no desplegada |
@@ -45,3 +46,9 @@ Ambos expiran el 08-10-2026, cumpliendo los 7 días. Los cambios posteriores en 
 El commit creado mediante la API devuelve `verification.reason=unsigned`; no se presenta como firmado. Antes de integrar con una regla de firma, preparar un commit firmado por el integrante real o utilizar el procedimiento de squash firmado permitido por GitHub y comprobar la firma resultante. No generar una identidad falsa del equipo ni cargar claves privadas en este flujo.
 
 [PR #2 pendiente de revisión](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/pull/2). [Issue #3: protección y revisión](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/issues/3).
+
+## Protección activada
+
+El 01-10-2026, con acceso autorizado por el usuario, se creó y se reabrió para verificar la [regla de main](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/settings/branch_protection_rules/84077806). Exige PR con una aprobación, revisión de Code Owners, descarte de aprobaciones obsoletas, conversaciones resueltas, commits firmados y checks `build-test` y `secrets-scan` emitidos por GitHub Actions; requiere rama actualizada. No permite bypass por administradores, force push ni borrado. La regla aplica a main.
+
+El PR sigue abierto porque la aprobación debe provenir de otro integrante. No se redujeron las protecciones para permitir el merge ni se simuló una revisión. El estado de firma de los commits propuestos se documentó arriba.

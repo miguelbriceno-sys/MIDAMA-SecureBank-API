@@ -44,10 +44,14 @@ Además, el ejemplo presenta `env` como un step sin acción/comando y usa una va
 | Build reproducible | Lockfile npm; build y 12 pruebas pasan localmente |
 | Última ejecución verde | Consultar el run asociado al SHA del PR; no sustituir por pruebas locales |
 | Artefacto descargable con hash y ≥7 días | Upload `dist-${github.sha}`, retention-days 7; comprobar existencia en el run |
-| Checks obligatorios para main | Activar `build-test` y `secrets-scan` en Settings; pendiente administrativo hasta verificar |
+| Checks obligatorios para main | Activados y verificados para main, restringidos a GitHub Actions; la integración exige ambos aprobados |
 | Sin secretos versionados | Job Gitleaks del historial y variables externas |
 | README con badge y descripción | Incluidos en la raíz |
 
 ## Preparación sesión 5: SAST
 
 SAST analiza código sin levantar la aplicación. Detecta patrones como inyección, secretos y validación insegura; no reemplaza pruebas dinámicas o de autorización. En la siguiente sesión se agregará un job con una herramienta y reglas revisadas, umbral de bloqueo y reporte trazable. Gitleaks cubre secretos; no representa un análisis SAST completo de toda la API.
+
+## Actualización de configuración
+
+La [regla de main](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/settings/branch_protection_rules/84077806) está activa con aprobación independiente, Code Owner review, firmas y checks obligatorios. El PR #2 conserva las entregas hasta que otro integrante revise y se confirme la firma del commit que se integrará. La ejecución se repite tras cada nuevo cambio; verificar siempre el último head antes de merge.

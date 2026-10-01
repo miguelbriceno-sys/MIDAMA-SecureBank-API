@@ -132,3 +132,15 @@ Como cliente quiero trazabilidad sin que mis credenciales aparezcan en registros
 **Criterio de aceptación:** Pruebas verifican que auditoría no contiene contraseña ni token; colector externo limita lectura y retención.
 
 **Estado:** Parcial: minimización probada; retención externa pendiente.
+
+## Seguimiento en GitHub Issues
+
+| Historia / pendiente | Issue |
+|---|---|
+| Protección de main y revisión independiente | [#3](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/issues/3) |
+| SS01: MFA | [#4](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/issues/4) |
+| SS03: TLS y gateway | [#5](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/issues/5) |
+| SS05/SS12: auditoría externa | [#6](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/issues/6) |
+| SS07: secretos y rotación | [#7](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/issues/7) |
+
+Las historias restantes conservan sus criterios y estado en este documento. No se marcaron como terminadas las partes que requieren infraestructura externa.

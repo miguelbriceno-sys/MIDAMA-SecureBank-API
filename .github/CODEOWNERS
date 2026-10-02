@@ -1,7 +1,20 @@
-# Solo se usa la cuenta GitHub confirmada. Ampliar tras verificar las otras cuentas.
-* @miguelbriceno-sys
-/src/ @miguelbriceno-sys
-/tests/ @miguelbriceno-sys
-/.github/ @miguelbriceno-sys
-/POL-REPO-001.md @miguelbriceno-sys
-/docs/threat-model.md @miguelbriceno-sys
+# Responsables generales del repositorio
+* @miguelbriceno-sys @Allen2109
+
+# Código fuente
+/src/ @silvadaniel-mac @Antonellaurbina
+
+# Pruebas
+/tests/ @Allen2109 @silvadaniel-mac
+
+# Pipeline DevSecOps y configuración GitHub
+/.github/ @miguelbriceno-sys @Allen2109
+
+# Documentación
+/docs/ @Antonellaurbina @silvadaniel-mac
+
+# Política de repositorio
+/POL-REPO-001.md @miguelbriceno-sys @Allen2109
+
+# Threat Model
+/docs/threat-model.md @silvadaniel-mac @Antonellaurbina

@@ -4,7 +4,7 @@
 
 Proyecto académico de **Ingeniería Informática, Universidad Bernardo O’Higgins**, asignatura **Sistemas Automatizados DevSecOps**, 2026.
 
-**Equipo MIDAMA:** Antonella Mancilla, Allen Ramirez, Daniel Silva y Miguel Briceño. 
+**Equipo MIDAMA:** Antonella Mancilla, Allen Ramirez, Daniel Silva y Miguel Briceño
 
 ## Entregas por sesión
 

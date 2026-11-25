@@ -1,0 +1,13 @@
+policy/tests/gate_test.rego:
+data.securepipeline.gate_test.test_datos_ausentes: PASS (1.210183ms)
+data.securepipeline.gate_test.test_contexto_desconocido: PASS (1.41566ms)
+data.securepipeline.gate_test.test_tipo_invalido: PASS (2.870864ms)
+data.securepipeline.gate_test.test_secreto: PASS (3.675489ms)
+data.securepipeline.gate_test.test_debate_bloqueado: PASS (5.191079ms)
+data.securepipeline.gate_test.test_dast: PASS (4.988536ms)
+data.securepipeline.gate_test.test_medios: PASS (6.117626ms)
+data.securepipeline.gate_test.test_critico: PASS (5.884203ms)
+data.securepipeline.gate_test.test_pasa_limite: PASS (6.408251ms)
+data.securepipeline.gate_test.test_cobertura: PASS (6.173344ms)
+--------------------------------------------------------------------------------
+PASS: 10/10

@@ -26,3 +26,9 @@ La reescritura cambia los SHAs y no revoca el secreto. No se ejecutó sobre este
 Se incorporan `src/`, `tests/`, `Dockerfile`, `.github/workflows/`, CODEOWNERS, plantilla de PR y `.gitignore`. Se usa Node.js 24 según la sesión 4; `requirements.txt` no aplica a esta implementación, pues no usa Python. El repositorio existente se conserva con su nombre y visibilidad pública; crear una organización UBO o cambiarlo a privado requiere decisión del equipo y acceso del docente.
 
 [Configuración exacta de GitHub](configuracion-github.md) · [Estado verificable](../validacion.md).
+
+## Revisión del adelanto
+
+El 25 de noviembre GitHub informó protección activa sobre `main` con `build-test` y `secrets-scan` obligatorios. La distribución de responsables está incorporada en [CODEOWNERS](../../.github/CODEOWNERS). El requisito del laboratorio de alojar un repositorio privado en la organización universitaria continúa pendiente de confirmación con el docente. Cada integrante verifica su propio segundo factor.
+
+[Presentación de la sesión 2](sesion-02.pptx)

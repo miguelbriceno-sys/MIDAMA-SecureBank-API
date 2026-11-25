@@ -1,6 +1,8 @@
-# Validación y estado de la entrega
+# Validación del adelanto de octubre
 
 **Fecha: 02-10-2026 · MIDAMA.**
+
+Esta página conserva la evidencia histórica de las sesiones 1 a 4. Las verificaciones de noviembre y sus reportes figuran en el [índice de las trece sesiones](../README.md).
 
 Esta página distingue evidencia local de configuración real de GitHub y registra el estado actualizado de la entrega después de la integración del Pull Request #2.
 

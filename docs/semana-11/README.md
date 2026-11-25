@@ -20,3 +20,5 @@ El puntaje subió **43,75 puntos porcentuales**. Se divide el número de control
 La guía asocia CKV_AWS_40 con comodines. La regla que detectó efectivamente esa política fue CKV_AWS_62. El informe conserva los identificadores devueltos por la versión instalada. Un 100 % se refiere a estas 32 evaluaciones. El flujo ejecuta además un plan con proveedor simulado. La aplicación real exige un entorno AWS aprobado, estado remoto y autorización desde main.
 
 [Antes](../../reports/iac/before.json) · [Después](../../reports/iac/after.json) · [Score](../../reports/iac/score.json) · [Definición del perfil](../../terraform/profile.json) · [Informe técnico](informe-iac-MIDAMA.pdf) · [Presentación](sesion-11.pptx)
+
+El [análisis y el plan](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/45679103767) finalizaron correctamente. En la [prueba del escenario inicial](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/45679839650) el gate devolvió error y el job de plan quedó omitido.

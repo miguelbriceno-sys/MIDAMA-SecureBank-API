@@ -40,3 +40,9 @@ Instalar Gitleaks 8.24.3 y activar el hook con `git config core.hooksPath .githo
 Gitleaks devolvió 1 ante el marcador inerte y 0 al analizar el historial revisado. La prueba negativa genera el valor en un directorio temporal. Su regla representa un dato de ensayo sin acceso a ningún servicio. La evidencia conserva el identificador de regla y la línea.
 
 [Resultado de bloqueo](../reports/secrets/control-negativo.json) · [Historial analizado](../reports/secrets/historial.json) · [Ejecución negativa en GitHub](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/workflows/control-secretos.yml)
+
+El [run de bloqueo](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/45677827493) terminó en rojo por el marcador del laboratorio. La [captura de la ejecución](../reports/secrets/bloqueo-github.png) conserva la asociación con el commit. El workflow habitual se evalúa por separado.
+
+### Ensayo de rotación en SQLite
+
+Desde la raíz, ejecutar `node --test tests/rotation.test.js`. El ensayo registra un titular ficticio, emite un token y reinicia el servicio sobre la misma base con una clave nueva. El token anterior recibe 401. Un nuevo inicio de sesión recupera la cuenta original. La prueba genera ambas claves en memoria, elimina su base temporal al terminar y se ejecuta también en el job de pruebas. [Prueba de rotación](../tests/rotation.test.js).

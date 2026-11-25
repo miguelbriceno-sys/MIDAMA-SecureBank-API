@@ -54,7 +54,7 @@ SAST analiza código sin levantar la aplicación. Detecta patrones como inyecci�
 
 ## Actualización de configuración
 
-La [regla de main](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/settings/branch_protection_rules/84077806) está activa con aprobación independiente, Code Owner review, firmas y checks obligatorios. El PR #2 conserva las entregas hasta que otro integrante revise y se confirme la firma del commit que se integrará. La ejecución se repite tras cada nuevo cambio; verificar siempre el último head antes de merge.
+La [regla de main](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/settings/branch_protection_rules/84077806) está activa con aprobación independiente, Code Owner review, firmas y checks obligatorios. El [PR #2](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/pull/2) conserva la revisión y la integración del adelanto. La ejecución se repite tras cada nuevo cambio; verificar siempre el último head antes de merge.
 
 ## Revisión del adelanto
 

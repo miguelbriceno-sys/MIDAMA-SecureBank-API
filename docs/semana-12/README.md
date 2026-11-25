@@ -13,3 +13,7 @@ Se modelaron los cinco ejercicios sobre la API de MIDAMA y su imagen de laborato
 El clúster Kind usa cifrado de Secrets en reposo y el perfil Pod Security restricted. La regla del pod y los límites de recursos ocupan campos distintos en la API de Kubernetes. El script crea el entorno, instala la configuración, espera los tres rollouts, comprueba permisos y consulta salud. El clúster se elimina al finalizar. La identidad de lectura del registro se usa para descargar la imagen desde GHCR.
 
 [Deployment evaluado](../../k8s/hardened/deployment.hardened.yaml) · [Cinco manifiestos y configuración](../../k8s/hardened/) · [Prueba de runtime](../../k8s/kind-test.sh) · [Presentación](sesion-12.pptx)
+
+En el [run de Kind](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/45688292394), los tres pods alcanzaron el estado Ready. El proceso de la API informó UID 10001, cero capacidades efectivas y ausencia de token de ServiceAccount. El endpoint respondió con estado ok y la comprobación de etcd confirmó que el valor estaba cifrado.
+
+[Pods](../../reports/kubernetes/pods.txt) · [Permisos efectivos](../../reports/kubernetes/identidad.txt) · [Cifrado](../../reports/kubernetes/cifrado.txt) · [Resultados de Kubesec](../../reports/kubernetes/)

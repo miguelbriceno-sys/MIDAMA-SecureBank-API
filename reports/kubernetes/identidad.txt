@@ -1,0 +1,1 @@
+UID 10001 CapEff=0; token de ServiceAccount ausente

@@ -11,6 +11,9 @@ export function createApp({ bank = createBank(), httpsOnly = false, limit = 60, 
     res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
     if (httpsOnly) res.setHeader('Strict-Transport-Security', 'max-age=31536000');
     const send = (status, data) => { res.writeHead(status); res.end(JSON.stringify(data)); };
     try {

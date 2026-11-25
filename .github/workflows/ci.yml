@@ -49,7 +49,12 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with: {persist-credentials: false}
-      - run: pipx install 'semgrep==1.145.0' --pip-args='-c security/python-constraints.txt'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: "3.12"}
+      - run: |
+          python -m venv "$RUNNER_TEMP/semgrep"
+          "$RUNNER_TEMP/semgrep/bin/pip" install -c security/python-constraints.txt semgrep==1.145.0
+          echo "$RUNNER_TEMP/semgrep/bin" >> "$GITHUB_PATH"
       - run: ./scripts/sast.sh evidence/sast/sast-after.sarif
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()

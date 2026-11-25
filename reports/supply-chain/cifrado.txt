@@ -1,0 +1,1 @@
+Secret de laboratorio cifrado en etcd con aescbc.

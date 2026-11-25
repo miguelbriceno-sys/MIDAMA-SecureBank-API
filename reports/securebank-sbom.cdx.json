@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:95eb95a9-3bc1-45af-876f-7368f53f50b6",
+  "serialNumber": "urn:uuid:575db939-b5f2-4ba2-9c33-890f7abcf4ae",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-25T18:35:36.199Z",
+    "timestamp": "2026-11-25T19:49:40.862Z",
     "lifecycles": [
       {
         "phase": "pre-build"
@@ -21,7 +21,7 @@
     "component": {
       "bom-ref": "midama-securebank-api@1.0.0",
       "type": "library",
-      "name": "securebank",
+      "name": "MIDAMA-SecureBank-API",
       "version": "1.0.0",
       "scope": "required",
       "purl": "pkg:npm/midama-securebank-api@1.0.0",

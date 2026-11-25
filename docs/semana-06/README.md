@@ -14,3 +14,5 @@ El informe del 25 de noviembre registró cero avisos en este alcance. Bloquear d
 El job `sca` depende de `sast`. Ejecuta `python3 scripts/sca.py evidence/sca` y conserva los cuatro archivos del mismo run.
 
 [SBOM](../../reports/securebank-sbom.cdx.json) · [Informe legible](../../reports/securebank-vulns.html) · [JSON nativo](../../reports/securebank-vulns.json) · [Decisión](../../reports/sca-decision.json) · [Presentación](sesion-06.pptx)
+
+Los archivos de reports se extrajeron del [run 45688850012](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/45688850012). El SBOM registra la versión del generador, su marca de tiempo y la referencia PURL del componente raíz.

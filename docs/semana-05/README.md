@@ -14,4 +14,4 @@ La rama didáctica con los cinco defectos no formaba parte de la entrega. Los ci
 
 El job `sast` corre después de las pruebas y antes de publicar `dist`. Los informes quedan como artefactos del mismo SHA. Un error del analizador o un resultado alto detienen la entrega.
 
-[Antes](../../reports/sast/sast-before.sarif) · [Después](../../reports/sast/sast-after.sarif) · [Código corregido](../../src/bank.js) · [CI de la entrega](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/pull/15/checks) · [Presentación](sesion-05.pptx)
+[Antes](../../reports/sast/sast-before.sarif) · [Después](../../reports/sast/sast-after.sarif) · [Código corregido](../../src/bank.js) · [CI de la entrega](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/45688850012) · [Presentación](sesion-05.pptx)

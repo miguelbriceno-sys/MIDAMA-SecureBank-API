@@ -1,0 +1,11 @@
+{
+  "context": "banca-publica",
+  "secrets": 0,
+  "sast_critical": 0,
+  "sast_high": 0,
+  "sca_critical": 0,
+  "sca_high": 0,
+  "dast_high": 0,
+  "medium": 0,
+  "coverage": 96.28
+}

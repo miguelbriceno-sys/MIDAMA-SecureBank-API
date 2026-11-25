@@ -41,7 +41,20 @@ YAML
           predicateType: https://cyclonedx.org/bom
 YAML
   fi
-  kubectl apply -f "$tmp/politica.yaml"
+  applied=false
+  for _ in {1..25}; do
+    if kubectl apply -f "$tmp/politica.yaml" >"$tmp/apply.log" 2>&1; then
+      cat "$tmp/apply.log"
+      applied=true
+      break
+    fi
+    if ! grep -Eiq 'connect: connection refused|no endpoints available|TLS handshake timeout|context deadline exceeded|certificate signed by unknown authority' "$tmp/apply.log"; then
+      cat "$tmp/apply.log" >&2
+      exit 1
+    fi
+    sleep 3
+  done
+  if [[ "$applied" != true ]]; then cat "$tmp/apply.log" >&2; exit 1; fi
 done
 kubectl label namespace securebank policy.sigstore.dev/include=true --overwrite
 kubectl get clusterimagepolicy securebank-firma securebank-inventario -o name > "$dest/politicas.txt"

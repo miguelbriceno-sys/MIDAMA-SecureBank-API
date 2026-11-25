@@ -1,0 +1,44 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:95eb95a9-3bc1-45af-876f-7368f53f50b6",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-25T18:35:36.199Z",
+    "lifecycles": [
+      {
+        "phase": "pre-build"
+      }
+    ],
+    "tools": [
+      {
+        "vendor": "npm",
+        "name": "cli",
+        "version": "11.19.1"
+      }
+    ],
+    "component": {
+      "bom-ref": "midama-securebank-api@1.0.0",
+      "type": "library",
+      "name": "securebank",
+      "version": "1.0.0",
+      "scope": "required",
+      "purl": "pkg:npm/midama-securebank-api@1.0.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    }
+  },
+  "components": [],
+  "dependencies": [
+    {
+      "ref": "midama-securebank-api@1.0.0",
+      "dependsOn": []
+    }
+  ]
+}

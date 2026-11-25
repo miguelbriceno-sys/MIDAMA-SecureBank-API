@@ -35,8 +35,7 @@ nodes:
         kind: ClusterConfiguration
         apiServer:
           extraArgs:
-            - name: encryption-provider-config
-              value: /etc/securebank/encryption.yaml
+            encryption-provider-config: /etc/securebank/encryption.yaml
           extraVolumes:
             - name: claves-etcd
               hostPath: /etc/securebank

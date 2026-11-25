@@ -22,7 +22,7 @@ spec:
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: frontend
-          image: ghcr.io/miguelbriceno-sys/midama-securebank-api-lab@sha256:ab1517355a5c0116a23548551ac62edf45b473dee42652b1bb14e5bff02d3be9
+          image: ghcr.io/miguelbriceno-sys/midama-securebank-api-lab@sha256:bc53427c67f3c20da8dbe46441ee156e04d83be8bb6c2138dcd90448c6db9f27
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: false

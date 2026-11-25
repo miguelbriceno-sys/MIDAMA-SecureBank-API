@@ -4,7 +4,7 @@ set -euo pipefail
 dest=${1:-evidence/dast}
 mkdir -p "$dest"
 dest=$(realpath "$dest")
-image='ghcr.io/zaproxy/zaproxy@sha256:65f8bee15a648ca4a0b6a25e1096fc76af6eea42ab2d75f2a9649981225f30b8'
+image='ghcr.io/zaproxy/zaproxy@sha256:c2d63bbb2d907a5c5257914fb20e26e969c92b25f265def7f89f08203f912882'
 appimage="securebank-dast:${GITHUB_RUN_ID:-local}"
 instance=$(docker build -q -t "$appimage" .)
 container=$(docker run -d --rm -p 127.0.0.1:38080:3000 -e JWT_SECRET="$(openssl rand -hex 32)" "$instance")

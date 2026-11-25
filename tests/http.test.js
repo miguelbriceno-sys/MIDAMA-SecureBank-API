@@ -56,6 +56,9 @@ test('perfil propio, denegación auditada y cabeceras de seguridad', async t => 
   assert.ok(bank.audit.some(item => item.event === 'profile' && item.outcome === 'denied'));
   assert.equal((await fetch(base + '/users/' + person.id)).status, 401);
   assert.equal(own.headers.get('x-frame-options'), 'DENY');
+  assert.equal(own.headers.get('cross-origin-resource-policy'), 'same-origin');
+  assert.equal(own.headers.get('cross-origin-opener-policy'), 'same-origin');
+  assert.equal(own.headers.get('cross-origin-embedder-policy'), 'require-corp');
   assert.match(own.headers.get('content-security-policy'), /frame-ancestors 'none'/);
   assert.equal(own.headers.get('strict-transport-security'), 'max-age=31536000');
 });

@@ -1,0 +1,19 @@
+{
+  "alcance": "Perfil docente versionado en terraform/profile.json",
+  "before": {
+    "passed": 18,
+    "failed": 14,
+    "total": 32,
+    "score": 56.25,
+    "graves": 13,
+    "decision": "BLOQUEAR"
+  },
+  "after": {
+    "passed": 32,
+    "failed": 0,
+    "total": 32,
+    "score": 100.0,
+    "graves": 0,
+    "decision": "CONTINUAR"
+  }
+}

@@ -55,3 +55,9 @@ SAST analiza código sin levantar la aplicación. Detecta patrones como inyecci�
 ## Actualización de configuración
 
 La [regla de main](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/settings/branch_protection_rules/84077806) está activa con aprobación independiente, Code Owner review, firmas y checks obligatorios. El PR #2 conserva las entregas hasta que otro integrante revise y se confirme la firma del commit que se integrará. La ejecución se repite tras cada nuevo cambio; verificar siempre el último head antes de merge.
+
+## Revisión del adelanto
+
+El commit de partida `c8e48a8` tiene una [ejecución satisfactoria en GitHub Actions](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/36956801856). El 25 de noviembre se repitieron la instalación, el build y las doce pruebas en Node.js 24. La cobertura fue 95,91 % de líneas y 89,84 % de ramas. El YAML histórico puede consultarse [en la revisión del adelanto](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/blob/c8e48a84ead957b7a24cc23e1851495e67aad0b0/.github/workflows/ci.yml).
+
+[Presentación de la sesión 4](sesion-04.pptx)

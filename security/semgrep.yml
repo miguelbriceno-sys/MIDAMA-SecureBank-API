@@ -1,0 +1,10 @@
+rules:
+  - id: firma-hmac-representacion
+    languages: [javascript]
+    severity: ERROR
+    message: Comparar la firma HMAC con su representación base64url canónica antes de aceptar una sesión.
+    metadata:
+      cwe: ["CWE-180"]
+      owasp: ["A07:2021"]
+      impact: HIGH
+    pattern: Buffer.from(signature, 'base64url')

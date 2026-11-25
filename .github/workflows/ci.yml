@@ -1,4 +1,4 @@
-name: SecureBank API CI v1.0
+name: SecureBank CI
 on:
   push:
   pull_request:
@@ -11,67 +11,64 @@ concurrency:
   cancel-in-progress: true
 jobs:
   secrets-scan:
-    name: secrets-scan
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Checkout full history
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Gitleaks history scan
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: "false"
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
-  build-test:
-    name: build-test
+  unit-tests:
     needs: secrets-scan
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - name: Setup Node 24
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "24"
-          cache: npm
-      - name: Install locked dependencies
-        run: npm ci --ignore-scripts
-      - name: Build
-        run: npm run build
-      - name: Unit and HTTP tests with coverage
-        run: |
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: "24"}
+      - run: npm ci --ignore-scripts && npm run build
+      - run: |
           set -o pipefail
           npm run test:ci | tee coverage-summary.txt
-      - name: Upload tested dist
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: dist-${{ github.sha }}
-          path: dist/
-          retention-days: 7
-          if-no-files-found: error
-      - name: Upload test evidence
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: tests-${{ github.sha }}
           path: |
             test-results.xml
             coverage-summary.txt
-          retention-days: 7
-          if-no-files-found: warn
-      - name: Report result
+          retention-days: 14
+          if-no-files-found: error
+  sast:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: pipx install 'semgrep==1.145.0' --pip-args='-c security/python-constraints.txt'
+      - run: ./scripts/sast.sh evidence/sast/sast-after.sarif
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
+        with: {name: "sast-${{ github.sha }}", path: evidence/sast/, retention-days: 14, if-no-files-found: error}
+  build-test:
+    needs: [unit-tests, sast]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exigir todas las etapas anteriores
         env:
-          JOB_STATUS: ${{ job.status }}
-          COMMIT_SHA: ${{ github.sha }}
-        run: |
-          echo "## SecureBank API CI v1.0" >> "$GITHUB_STEP_SUMMARY"
-          echo "Commit: $COMMIT_SHA" >> "$GITHUB_STEP_SUMMARY"
-          echo "Resultado: $JOB_STATUS" >> "$GITHUB_STEP_SUMMARY"
+          RESULTS: ${{ toJSON(needs) }}
+        run: jq -e 'length > 0 and all(.[]; .result == "success")' <<< "$RESULTS"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: "24"}
+      - run: npm ci --ignore-scripts && npm run build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 14
+          if-no-files-found: error

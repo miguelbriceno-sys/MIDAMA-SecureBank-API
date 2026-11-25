@@ -1,0 +1,1 @@
+ghcr.io/miguelbriceno-sys/midama-securebank-api-lab@sha256:bc53427c67f3c20da8dbe46441ee156e04d83be8bb6c2138dcd90448c6db9f27

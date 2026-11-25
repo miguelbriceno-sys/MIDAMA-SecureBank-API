@@ -71,3 +71,9 @@ Si B indica una cuenta de A como `originAccount` y el servidor confía en ese ca
 ## Historias y seguimiento
 
 Cada amenaza tiene una historia SS01–SS12 y criterios verificables en el [backlog](semana-03/backlog.md). Las pruebas existentes se identifican como implementación parcial donde falta infraestructura. El equipo debe revisar riesgos residuales después del CI y antes de cualquier despliegue.
+
+## Revisión del 25 de noviembre
+
+El registro OCI, el runner con identidad OIDC y el clúster de laboratorio amplían las fronteras de la primera versión. La sesión 12 verifica la identidad del proceso y el cifrado de los secretos. La sesión 13 exige un digest firmado y un inventario vinculado a esa imagen. La siguiente revisión se fija antes de promover otra imagen y, como máximo, el 25 de diciembre de 2026.
+
+[Revisión del clúster](semana-12/README.md) · [Control de la cadena de suministro](semana-13/README.md)

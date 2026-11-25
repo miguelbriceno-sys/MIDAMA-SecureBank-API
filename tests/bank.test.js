@@ -76,3 +76,8 @@ test('auditoría encadenada excluye contraseñas y tokens', t => {
   assert.equal(JSON.stringify(bank.audit).includes(token), false);
   assert.equal(JSON.stringify(bank.audit).includes(pa), false);
 });
+
+test('la firma de sesión exige la codificación canónica', t => {
+  const { bank, token } = fixture(t);
+  denied(() => bank.authenticate(token + '='), 401);
+});

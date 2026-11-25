@@ -1,0 +1,43 @@
+name: Comparativo de imágenes S10
+on:
+  push:
+    branches: [main, entrega/bitacora-devsecops-01-13]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  comparacion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: scripts/ci/tool.sh trivy
+      - run: docker/compare.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "imagenes-${{ github.sha }}", path: evidence/images/, retention-days: 14, if-no-files-found: error}
+      - name: Publicar la tabla de mediciones
+        run: cat evidence/images/metricas.md >> "$GITHUB_STEP_SUMMARY"
+  publicar-laboratorio:
+    needs: comparacion
+    if: github.event_name == 'push' && github.ref == 'refs/heads/entrega/bitacora-devsecops-01-13'
+    runs-on: ubuntu-latest
+    permissions: {contents: read, packages: write}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - name: Publicar la referencia de laboratorio para Kubernetes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          pkg="ghcr.io/${GITHUB_REPOSITORY,,}-lab"
+          docker build --platform linux/amd64 -t "$pkg:s10-$GITHUB_SHA" .
+          docker push "$pkg:s10-$GITHUB_SHA"
+          docker inspect --format '{{index .RepoDigests 0}}' "$pkg:s10-$GITHUB_SHA" > imagen-lab.txt
+          cat imagen-lab.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with: {name: "referencia-s10-${{ github.sha }}", path: imagen-lab.txt, retention-days: 14}

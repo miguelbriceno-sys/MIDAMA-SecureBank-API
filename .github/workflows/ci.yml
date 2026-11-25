@@ -1,9 +1,10 @@
-name: SecureBank API CI v1.0
+name: SecureBank CI
 on:
   push:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 concurrency:
@@ -11,67 +12,113 @@ concurrency:
   cancel-in-progress: true
 jobs:
   secrets-scan:
-    name: secrets-scan
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Checkout full history
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Gitleaks history scan
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_ENABLE_COMMENTS: "false"
-          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
-  build-test:
-    name: build-test
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 0, persist-credentials: false}
+      - run: scripts/ci/tool.sh gitleaks
+      - run: |
+          mkdir -p evidence/secrets
+          gitleaks git --no-banner --redact=100 --log-opts=--all --config=.gitleaks.toml --report-format=json --report-path=evidence/secrets/gitleaks.json .
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "secrets-${{ github.sha }}", path: evidence/secrets/, retention-days: 14, if-no-files-found: error}
+  unit-tests:
     needs: secrets-scan
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - name: Setup Node 24
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "24"
-          cache: npm
-      - name: Install locked dependencies
-        run: npm ci --ignore-scripts
-      - name: Build
-        run: npm run build
-      - name: Unit and HTTP tests with coverage
-        run: |
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: "24"}
+      - run: npm ci --ignore-scripts && npm run build
+      - run: |
           set -o pipefail
           npm run test:ci | tee coverage-summary.txt
-      - name: Upload tested dist
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: dist-${{ github.sha }}
-          path: dist/
-          retention-days: 7
-          if-no-files-found: error
-      - name: Upload test evidence
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: tests-${{ github.sha }}
           path: |
             test-results.xml
             coverage-summary.txt
-          retention-days: 7
-          if-no-files-found: warn
-      - name: Report result
+          retention-days: 14
+          if-no-files-found: error
+  sast:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: "3.12"}
+      - run: |
+          python -m venv "$RUNNER_TEMP/semgrep"
+          "$RUNNER_TEMP/semgrep/bin/pip" install -c security/python-constraints.txt semgrep==1.145.0
+          echo "$RUNNER_TEMP/semgrep/bin" >> "$GITHUB_PATH"
+      - run: ./scripts/sast.sh evidence/sast/sast-after.sarif
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
+        with: {name: "sast-${{ github.sha }}", path: evidence/sast/, retention-days: 14, if-no-files-found: error}
+  sca:
+    needs: sast
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: "24"}
+      - run: python3 scripts/sca.py evidence/sca
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "sca-${{ github.sha }}", path: evidence/sca/, retention-days: 14, if-no-files-found: error}
+      - name: Retener hallazgos altos para revisión
+        run: jq -e '.decision == "CONTINUAR"' evidence/sca/sca-decision.json
+  dast:
+    needs: sca
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: scripts/ci/dast.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "dast-${{ github.sha }}", path: evidence/dast/, retention-days: 14, if-no-files-found: error}
+  gate:
+    needs: [secrets-scan, unit-tests, sast, sca, dast]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with: {pattern: "*-${{ github.sha }}", path: inputs}
+      - run: scripts/ci/tool.sh opa
+      - run: |
+          opa test policy -v
+          python3 scripts/ci/metrics.py inputs evidence/gate/metrics.json
+          opa eval -f pretty -d policy/security-policy-v1.rego -i evidence/gate/metrics.json data.securepipeline.gate > evidence/gate/decision.json
+          opa eval --fail -d policy/security-policy-v1.rego -i evidence/gate/metrics.json 'data.securepipeline.gate.allow == true'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "gate-${{ github.sha }}", path: evidence/gate/, retention-days: 14, if-no-files-found: error}
+  build-test:
+    needs: [unit-tests, sast, sca, dast, gate]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exigir todas las etapas anteriores
         env:
-          JOB_STATUS: ${{ job.status }}
-          COMMIT_SHA: ${{ github.sha }}
-        run: |
-          echo "## SecureBank API CI v1.0" >> "$GITHUB_STEP_SUMMARY"
-          echo "Commit: $COMMIT_SHA" >> "$GITHUB_STEP_SUMMARY"
-          echo "Resultado: $JOB_STATUS" >> "$GITHUB_STEP_SUMMARY"
+          RESULTS: ${{ toJSON(needs) }}
+        run: jq -e 'length > 0 and all(.[]; .result == "success")' <<< "$RESULTS"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: "24"}
+      - run: npm ci --ignore-scripts && npm run build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 14
+          if-no-files-found: error

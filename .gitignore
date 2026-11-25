@@ -10,3 +10,7 @@ id_rsa*
 credentials.json
 *.sqlite*
 test-results.xml
+
+.terraform/
+*.tfstate*
+*.tfplan

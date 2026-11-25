@@ -1,0 +1,26 @@
+{
+  "v1": {
+    "imagen": "sha256:03b4f718cdeeb6dce6af1396f4e73c8a85a06a34120d7b79008f46ea9c0c42d6",
+    "fecha": "2026-11-25T18:43:07.512654615Z",
+    "bytes": 81604943,
+    "paquetes": 235,
+    "critical": 1,
+    "high": 44,
+    "uid": 1000,
+    "puertos": [
+      "3000/tcp"
+    ]
+  },
+  "v2": {
+    "imagen": "sha256:163878601892a1a8dbf0a3285f9be8a5ef41c197560e5126970ec5f69ee2fd48",
+    "fecha": "2026-11-25T18:43:15.9583126Z",
+    "bytes": 55511528,
+    "paquetes": 15,
+    "critical": 0,
+    "high": 3,
+    "uid": 10001,
+    "puertos": [
+      "3000/tcp"
+    ]
+  }
+}

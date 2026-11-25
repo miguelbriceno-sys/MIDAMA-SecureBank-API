@@ -1,0 +1,121 @@
+name: Cadena de suministro S13
+on:
+  push:
+    branches: [main, entrega/bitacora-devsecops-01-13]
+    paths:
+      - src/**
+      - Dockerfile
+      - package*.json
+      - k8s/**
+      - supply-chain/**
+      - scripts/ci/**
+      - .github/workflows/supply-chain.yml
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  controles:
+    uses: ./.github/workflows/ci.yml
+  construir:
+    needs: controles
+    runs-on: ubuntu-latest
+    permissions: {contents: read, packages: write}
+    outputs:
+      image: ${{ steps.imagen.outputs.image }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - id: imagen
+        name: Construir y publicar el digest del laboratorio
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          repo="ghcr.io/${GITHUB_REPOSITORY,,}-lab"
+          epoch=$(git show -s --format=%ct HEAD)
+          docker buildx create --name s13 --driver docker-container --use
+          docker buildx build --platform linux/amd64 --build-arg SOURCE_DATE_EPOCH="$epoch" \
+            --provenance=mode=max --metadata-file metadata.json \
+            --output "type=image,name=$repo:$GITHUB_SHA,push=true,rewrite-timestamp=true" .
+          digest=$(jq -er '."containerimage.digest"' metadata.json)
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          printf '%s@%s\n' "$repo" "$digest" | tee digest.txt
+          echo "image=$repo@$digest" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with: {name: "build-oci-${{ github.sha }}", path: "digest.txt\nmetadata.json", retention-days: 14}
+  firmar:
+    needs: construir
+    runs-on: ubuntu-latest
+    permissions: {contents: read, packages: write, id-token: write}
+    env:
+      IMAGE: ${{ needs.construir.outputs.image }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: scripts/ci/tool.sh cosign && scripts/ci/tool.sh syft
+      - name: Inventariar y firmar la imagen y su SBOM
+        run: |
+          set -euo pipefail
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          mkdir -p evidence/firma
+          syft scan "registry:$IMAGE" --platform linux/amd64 -o cyclonedx-json=evidence/firma/sbom.cdx.json
+          jq -e '.bomFormat == "CycloneDX" and (.components | length > 0)' evidence/firma/sbom.cdx.json
+          cosign sign --yes "$IMAGE" 2>&1 | tee evidence/firma/firma.log
+          cosign attest --yes --type cyclonedx --predicate evidence/firma/sbom.cdx.json "$IMAGE" 2>&1 | tee evidence/firma/attestation.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "firma-${{ github.sha }}", path: evidence/firma/, retention-days: 14}
+  verificar:
+    needs: [construir, firmar]
+    runs-on: ubuntu-latest
+    permissions: {contents: read, packages: read}
+    env:
+      IMAGE: ${{ needs.construir.outputs.image }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: scripts/ci/tool.sh cosign
+      - name: Verificar identidad, emisor, digest y attestation
+        run: |
+          set -euo pipefail
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          identity="https://github.com/$GITHUB_REPOSITORY/.github/workflows/supply-chain.yml@$GITHUB_REF"
+          flags=(--certificate-identity "$identity" --certificate-oidc-issuer https://token.actions.githubusercontent.com)
+          mkdir -p evidence/verificacion
+          echo "$IMAGE" > evidence/verificacion/imagen.txt
+          cosign verify "${flags[@]}" "$IMAGE" > evidence/verificacion/firma.json
+          cosign verify-attestation "${flags[@]}" --type cyclonedx "$IMAGE" > evidence/verificacion/envelope.jsonl
+          jq -r '.payload' evidence/verificacion/envelope.jsonl | head -n 1 | base64 -d > evidence/verificacion/statement.json
+          jq -e --arg sha "${IMAGE##*@sha256:}" 'any(.subject[]; .digest.sha256 == $sha) and .predicate.bomFormat == "CycloneDX"' evidence/verificacion/statement.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with: {name: "verificacion-${{ github.sha }}", path: evidence/verificacion/, retention-days: 14}
+  desplegar-lab:
+    needs: [construir, verificar]
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    permissions: {contents: read, packages: read}
+    env:
+      IMAGE: ${{ needs.construir.outputs.image }}
+      GH_TOKEN: ${{ github.token }}
+      VERIFY_SIGNED: "true"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: scripts/ci/tool.sh kind && scripts/ci/tool.sh kubesec
+      - run: |
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          k8s/kind-test.sh "$IMAGE" evidence/admision
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "admision-${{ github.sha }}", path: evidence/admision/, retention-days: 14}
+  etiquetar:
+    needs: [construir, desplegar-lab]
+    runs-on: ubuntu-latest
+    permissions: {contents: read, packages: write}
+    env: {IMAGE: "${{ needs.construir.outputs.image }}", GH_TOKEN: "${{ github.token }}"}
+    steps:
+      - name: Identificar la entrega v1 del laboratorio
+        run: |
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker buildx imagetools create --prefer-index=false --tag "${IMAGE%@*}:v1" "$IMAGE"

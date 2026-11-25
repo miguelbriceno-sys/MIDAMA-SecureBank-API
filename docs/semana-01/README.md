@@ -45,3 +45,9 @@ La responsabilidad se distribuye entre desarrollo, QA, operaciones y seguridad. 
 ## Correcciones de documentación
 
 Se completó el ejercicio omitido, se explicitaron los responsables y se cerró correctamente el bloque de estructura que estaba abierto en el README anterior. La portada del proyecto y el índice de sesiones ahora se encuentran en el README de la raíz.
+
+## Revisión del adelanto
+
+El ejercicio integra seis activos de la API con su amenaza y su control. En la revisión del 25 de noviembre se comprobó que el diagrama abre como un PDF de una página. La tabla anterior permite ubicar a la persona responsable cuando una medida pasa del diseño a la implementación.
+
+[Presentación de la sesión 1](sesion-01.pptx)

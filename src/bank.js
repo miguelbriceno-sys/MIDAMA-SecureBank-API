@@ -63,8 +63,9 @@ export function createBank({ database = ':memory:', jwtSecret = randomBytes(32),
       const [header, body, signature] = parts;
       const h = JSON.parse(Buffer.from(header, 'base64url').toString());
       if (h.alg !== 'HS256' || h.typ !== 'JWT') throw new Error();
-      const expected = createHmac('sha256', secret).update(`${header}.${body}`).digest();
-      const received = Buffer.from(signature, 'base64url');
+      const canonical = createHmac('sha256', secret).update(`${header}.${body}`).digest('base64url');
+      const expected = Buffer.from(canonical, 'utf8');
+      const received = Buffer.from(signature, 'utf8');
       if (received.length !== expected.length || !timingSafeEqual(received, expected)) throw new Error();
       const p = JSON.parse(Buffer.from(body, 'base64url').toString());
       if (p.iss !== 'midama-securebank' || p.aud !== 'securebank-api' || !Number.isInteger(p.exp) || p.exp <= Math.floor(now() / 1000)) throw new Error();
@@ -72,6 +73,13 @@ export function createBank({ database = ':memory:', jwtSecret = randomBytes(32),
       if (!user || user.role !== p.role) throw new Error();
       return user;
     } catch { fail(401, 'Token inválido o expirado.'); }
+  }
+  function profile(user, requestedId) {
+    if (requestedId !== user.id) {
+      record('profile', user.id, 'denied');
+      fail(403, 'Acceso denegado.');
+    }
+    return db.prepare('SELECT id, username FROM users WHERE id = ?').get(user.id);
   }
   function account(user, accountId) {
     const row = db.prepare('SELECT id, owner, balance FROM accounts WHERE id = ?').get(accountId);
@@ -102,7 +110,7 @@ export function createBank({ database = ':memory:', jwtSecret = randomBytes(32),
     record('transfer', user.id, 'allowed');
     return result;
   }
-  return { register, login, authenticate, account, accounts, movements, transfer, audit,
+  return { register, login, authenticate, profile, account, accounts, movements, transfer, audit,
     close: () => db.close(),
     // Solo fixture de pruebas/local: no existe endpoint HTTP de carga de saldo.
     fundForTest(accountId, amount) {

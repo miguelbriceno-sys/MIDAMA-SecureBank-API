@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: securebank-frontend
+  namespace: securebank
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: securebank-frontend}
+  template:
+    metadata:
+      labels: {app: securebank-frontend}
+    spec:
+      serviceAccountName: securebank-runtime
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: frontend
+          image: ghcr.io/miguelbriceno-sys/midama-securebank-api-lab@sha256:bc53427c67f3c20da8dbe46441ee156e04d83be8bb6c2138dcd90448c6db9f27
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+          args: ["/lab/frontend.js"]
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+            - {name: scripts, mountPath: /lab, readOnly: true}
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe: {httpGet: {path: /, port: http}, periodSeconds: 5}
+      volumes:
+        - {name: tmp, emptyDir: {sizeLimit: 16Mi}}
+        - name: scripts
+          configMap:
+            name: securebank-config
+            items: [{key: frontend.js, path: frontend.js}]

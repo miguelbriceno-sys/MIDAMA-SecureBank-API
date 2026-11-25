@@ -1,0 +1,9 @@
+title = "SecureBank"
+[extend]
+useDefault = true
+
+[[rules]]
+id = "marcador-de-laboratorio"
+description = "Marcador inerte reservado para la prueba de bloqueo de SecureBank"
+regex = '''CONTROL-REVOCADO-[0-9]{8}'''
+keywords = ["CONTROL-REVOCADO"]

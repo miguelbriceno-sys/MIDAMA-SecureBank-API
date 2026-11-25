@@ -58,6 +58,9 @@ openssl rand -hex 32 | tr -d '\n' | kubectl -n securebank create secret generic 
 if [[ -f "${DOCKER_CONFIG:-$HOME/.docker}/config.json" ]]; then
   kubectl -n securebank create secret generic lectura-registro --type=kubernetes.io/dockerconfigjson --from-file=".dockerconfigjson=${DOCKER_CONFIG:-$HOME/.docker}/config.json" >/dev/null
 fi
+if [[ "${VERIFY_SIGNED:-false}" == true ]]; then
+  supply-chain/admision.sh "$img" "$dest"
+fi
 kubectl apply -f "$tmp/manifests/config.yaml"
 kubectl apply -f "$tmp/manifests/deployment.hardened.yaml" -f "$tmp/manifests/frontend-deployment.yaml" -f "$tmp/manifests/worker-deployment.yaml"
 for svc in api frontend worker; do kubectl -n securebank rollout status deployment/securebank-"$svc" --timeout=120s; done

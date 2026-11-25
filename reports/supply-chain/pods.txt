@@ -1,0 +1,4 @@
+NAME                                 READY   STATUS    RESTARTS   AGE   IP           NODE                                   NOMINATED NODE   READINESS GATES
+securebank-api-86d74d7b7-8vhg4       1/1     Running   0          3s    10.244.0.6   securebank-45688850036-control-plane   <none>           <none>
+securebank-frontend-54748ff4-g92sm   1/1     Running   0          2s    10.244.0.7   securebank-45688850036-control-plane   <none>           <none>
+securebank-worker-c86d5bc6d-dz2t5    1/1     Running   0          1s    10.244.0.8   securebank-45688850036-control-plane   <none>           <none>

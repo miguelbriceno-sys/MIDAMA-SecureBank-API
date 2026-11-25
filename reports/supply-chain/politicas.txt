@@ -1,0 +1,2 @@
+clusterimagepolicy.policy.sigstore.dev/securebank-firma
+clusterimagepolicy.policy.sigstore.dev/securebank-inventario

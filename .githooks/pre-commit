@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+exec gitleaks git --pre-commit --staged --redact=100 --config=.gitleaks.toml .

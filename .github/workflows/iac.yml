@@ -1,0 +1,80 @@
+name: IaC - auditoría y plan
+on:
+  push:
+    branches: [main, entrega/bitacora-devsecops-01-13, evidencia/s11-bloqueo]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      aplicar:
+        description: "Aplicar en el ambiente AWS configurado"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  scan-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: "3.12"}
+      - run: |
+          python -m venv "$RUNNER_TEMP/checkov"
+          "$RUNNER_TEMP/checkov/bin/pip" install checkov==3.2.495
+          echo "$RUNNER_TEMP/checkov/bin" >> "$GITHUB_PATH"
+      - name: Evaluar el módulo y el control negativo
+        run: |
+          if [[ "$GITHUB_REF" == refs/heads/evidencia/s11-bloqueo ]]; then
+            python terraform/audit.py evidence/iac --probar-bloqueo
+          else
+            python terraform/audit.py evidence/iac
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "checkov-${{ github.sha }}", path: evidence/iac, retention-days: 14}
+  plan:
+    needs: scan-gate
+    runs-on: ubuntu-latest
+    defaults:
+      run: {working-directory: terraform}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with: {terraform_version: 1.12.2}
+      - run: terraform init -input=false -backend=false
+      - run: terraform validate && terraform test -no-color
+  apply:
+    if: github.event_name == 'workflow_dispatch' && inputs.aplicar && github.ref == 'refs/heads/main'
+    needs: plan
+    environment: infraestructura-aws
+    runs-on: ubuntu-latest
+    permissions: {contents: read, id-token: write}
+    defaults:
+      run: {working-directory: terraform}
+    env:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      TF_VAR_ami: ${{ vars.APPROVED_AMI }}
+      TF_VAR_lambda_zip: funcion.zip
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with: {terraform_version: 1.12.2}
+      - name: Obtener identidad de corta duración y aplicar el plan autorizado
+        run: |
+          set -eu
+          : "${AWS_ROLE_ARN:?}" "${STATE_BUCKET:?}" "${TF_VAR_ami:?}" "${AWS_REGION:?}"
+          export TF_VAR_region="$AWS_REGION" AWS_WEB_IDENTITY_TOKEN_FILE="$RUNNER_TEMP/aws-identity"
+          umask 077
+          curl -fsS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -er .value > "$AWS_WEB_IDENTITY_TOKEN_FILE"
+          trap 'rm -f "$AWS_WEB_IDENTITY_TOKEN_FILE"' EXIT
+          (cd function && zip -q ../funcion.zip index.js)
+          printf '%s\n' 'terraform {' '  backend "s3" {}' '}' > backend.tf
+          terraform init -input=false -backend-config="bucket=$STATE_BUCKET" -backend-config="key=securebank/lab.tfstate" -backend-config="region=$AWS_REGION" -backend-config=encrypt=true -backend-config=use_lockfile=true
+          terraform plan -input=false -out=lab.plan
+          terraform apply -input=false lab.plan

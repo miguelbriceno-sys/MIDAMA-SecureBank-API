@@ -1,0 +1,34 @@
+env:
+  contexts:
+    - name: securebank
+      urls: ["http://127.0.0.1:38080"]
+      includePaths: ["http://127.0.0.1:38080/.*"]
+  parameters:
+    failOnError: true
+jobs:
+  - type: requestor
+    requests:
+      - url: http://127.0.0.1:38080/health
+        method: GET
+        responseCode: 200
+      - url: http://127.0.0.1:38080/
+        method: GET
+        responseCode: 401
+  - type: spider
+    parameters:
+      context: securebank
+      maxDuration: 1
+      maxDepth: 1
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 3
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: .
+      reportFile: report.json
+  - type: report
+    parameters:
+      template: traditional-html
+      reportDir: .
+      reportFile: report.html

@@ -1,71 +1,65 @@
-# MIDAMA · SecureBank API
+# SecureBank API · Bitácora DevSecOps de MIDAMA
 
-[![CI v1.0](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/workflows/ci.yml/badge.svg)](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/workflows/ci.yml)
+[![Estado de integración continua](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/workflows/ci.yml/badge.svg)](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/workflows/ci.yml)
 
-Proyecto académico de **Ingeniería Informática, Universidad Bernardo O’Higgins**, asignatura **Sistemas Automatizados DevSecOps**, 2026.
+**Ingeniería Informática, Universidad Bernardo O’Higgins · Sistemas Automatizados DevSecOps · 2026**
 
-**Equipo MIDAMA:** Antonella Mancilla, Allen Ramirez, Daniel Silva y Miguel Briceño
+Antonella Mancilla, Allen Ramírez, Daniel Silva y Miguel Briceño.
+
+SecureBank es una API bancaria de laboratorio. Registra usuarios ficticios, autentica sesiones, permite consultar cuentas y movimientos y procesa transferencias en pesos enteros. La bitácora sigue los trece PPT en orden. Las cuatro primeras sesiones conservan el adelanto de octubre. A partir de la quinta, cada carpeta identifica el problema estudiado, la decisión técnica y la evidencia.
 
 ## Entregas por sesión
 
-| Sesión | Actividad resuelta | Documento |
-|---|---|---|
-| 1 | Ciclo de ocho fases, controles, herramientas, roles; ejercicio de activos y discusión | [Semana 01](docs/semana-01/README.md) |
-| 2 | Política para fintech de 40 desarrolladores, Git seguro y secreto en el historial | [POL-REPO-001](POL-REPO-001.md) · [Semana 02](docs/semana-02/README.md) |
-| 3 | DFD con tres fronteras, 12 amenazas STRIDE y 12 historias de seguridad | [Threat Model](docs/threat-model.md) · [DFD editable](docs/semana-03/securebank-dfd.drawio) · [Backlog](docs/semana-03/backlog.md) |
-| 4 | CI v1.0, pruebas, artefacto y análisis de cuatro riesgos de pipeline | [Semana 04](docs/semana-04/README.md) · [Workflow](.github/workflows/ci.yml) |
+| Sesión | Trabajo resuelto | Entregable principal | Presentación del equipo |
+|---|---|---|---|
+| [01 · Ciclo seguro](docs/semana-01/README.md) | Ocho fases con herramientas y responsables, activos, amenazas y controles | [Diagrama de una página](docs/semana-01/ciclo-devsecops.pdf) | [PPT 01](docs/semana-01/sesion-01.pptx) |
+| [02 · Git](docs/semana-02/README.md) | Aprobaciones, propiedad del código, accesos y excepciones | [Política del repositorio](POL-REPO-001.md) | [PPT 02](docs/semana-02/sesion-02.pptx) |
+| [03 · STRIDE](docs/semana-03/README.md) | Doce amenazas, tres fronteras de confianza y doce historias de seguridad | [Modelo](docs/threat-model.md) · [DFD](docs/semana-03/securebank-dfd.drawio) · [Backlog](docs/semana-03/backlog.md) | [PPT 03](docs/semana-03/sesion-03.pptx) |
+| [04 · Integración continua](docs/semana-04/README.md) | Build, pruebas y artefacto identificable por commit | [Primera ejecución revisada](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/actions/runs/36956801856) | [PPT 04](docs/semana-04/sesion-04.pptx) |
+| [05 · SAST](docs/semana-05/README.md) | Revisión de cinco casos y corrección de la comparación de firmas de sesión | [SARIF inicial y final](reports/sast/) | [PPT 05](docs/semana-05/sesion-05.pptx) |
+| [06 · SCA](docs/semana-06/README.md) | Inventario de dependencias npm y decisión por severidad | [SBOM](reports/securebank-sbom.cdx.json) · [Informe legible](reports/securebank-vulns.html) · [JSON](reports/securebank-vulns.json) | [PPT 06](docs/semana-06/sesion-06.pptx) |
+| [07 · Secretos](docs/semana-07/README.md) | Escaneo anterior al commit, bloqueo de un marcador y respuesta a una fuga | [Procedimiento](docs/SECRETS.md) · [Evidencia](reports/secrets/) | [PPT 07](docs/semana-07/sesion-07.pptx) |
+| [08 · DAST](docs/semana-08/README.md) | ZAP Baseline, dos correcciones, pruebas de propiedad del perfil y cierre | [Informe PDF](docs/semana-08/reporte-dast-MIDAMA.pdf) · [JSON adjunto](reports/dast/report.json) | [PPT 08](docs/semana-08/sesion-08.pptx) |
+| [09 · Quality Gates](docs/semana-09/README.md) | Política Rego, diez pruebas y decisión sobre la promoción | [Política](policy/README.md) · [Decisión del runner](reports/gate/decision.json) | [PPT 09](docs/semana-09/sesion-09.pptx) |
+| [10 · Docker](docs/semana-10/README.md) | Dos construcciones medidas con Trivy y ejecución sin privilegios | [Comparativo de imágenes](docker/REPORT.md) | [PPT 10](docs/semana-10/sesion-10.pptx) |
+| [11 · Terraform](docs/semana-11/README.md) | Auditoría de veinte recursos principales y plan con proveedor simulado | [Informe PDF](docs/semana-11/informe-iac-MIDAMA.pdf) · [Checkov antes y después](reports/iac/) | [PPT 11](docs/semana-11/sesion-11.pptx) |
+| [12 · Kubernetes](docs/semana-12/README.md) | Cinco manifiestos de laboratorio, permisos efectivos y cifrado de Secrets | [Deployment](k8s/hardened/deployment.hardened.yaml) · [Evidencia de Kind](reports/kubernetes/) | [PPT 12](docs/semana-12/sesion-12.pptx) |
+| [13 · Cadena de suministro](docs/semana-13/README.md) | Imagen por digest, SBOM, firma, verificación y control de admisión | [Pipeline](.github/workflows/supply-chain.yml) · [Análisis del caso](docs/semana-13/caso-imagen.md) · [Evidencias](reports/supply-chain/) | [PPT 13](docs/semana-13/sesion-13.pptx) |
 
-## Alcance y decisiones
+Las presentaciones de referencia de la asignatura están disponibles por separado. El índice de material identifica las láminas adaptadas en los casos de seguridad. [PPT del ramo, sesiones 1 a 13](material/README.md).
 
-El repositorio original solo contenía documentación y el diagrama de la sesión 1. No se recibió el código de la API vulnerable del docente ni una pauta individual de correcciones. Esta implementación es una **base académica construida por MIDAMA a partir de los PPT**, con usuarios y fondos ficticios. Los ejemplos vulnerables del material se analizan como escenarios, sin atribuir hallazgos a un código inexistente.
+## Origen del caso y alcance
 
-Se utiliza **Node.js 24 y SQLite integrada**, sin dependencias npm externas. La sesión 2 muestra una estructura Python y la sesión 4 una implementación Node; se adopta Node para contar con `package.json`, lockfile, build, tests y `dist/` reales. `npm run build` valida sintaxis y empaqueta JavaScript, que no necesita transpilación. El despliegue cloud y la interfaz web del DFD son arquitectura propuesta, no componentes ya desplegados.
+El repositorio inicial de octubre y el material del curso sirvieron de base. El equipo trabajó sobre la implementación Node.js ya disponible. La rama docente con cinco defectos y el módulo SecureBank-Infra no se distribuyeron con los PPT. La sesión 5 documenta qué se encontró en el código del equipo. La 11 contrasta una línea base reconstruida con el módulo corregido bajo el mismo perfil de auditoría.
 
-## Ejecutar desde VS Code o terminal
+El laboratorio usa Node.js 24 y SQLite integrada. La API emite tokens de sesión por quince minutos, valida el propietario de la cuenta antes de efectuar un débito y registra cada denegación. La imagen y el clúster de prueba corresponden a linux/amd64. Para la demostración se usa un clúster efímero Kind y un registro OCI de laboratorio. El plan de AWS utiliza el proveedor simulado de Terraform.
 
-Requisito: Node.js 24.x y Git.
+## Ejecutar la API y las pruebas
 
-```bash
-git clone https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API.git
-cd MIDAMA-SecureBank-API
+Desde la raíz del repositorio, con Node.js 24 instalado:
+
+```sh
 npm ci --ignore-scripts
 npm run build
 npm test
 npm start
 ```
 
-En desarrollo escucha en `http://127.0.0.1:3000`; `GET /health` responde `{ "status": "ok" }`. SQLite usa memoria por defecto: los usuarios, saldos y movimientos desaparecen al reiniciar. Para persistencia local puede configurarse `DB_PATH` hacia un archivo fuera del repositorio. La clave JWT se genera aleatoriamente al iniciar si no se suministra una; los tokens duran 15 minutos y quedan invalidados tras ese reinicio. `NODE_ENV=production` exige `JWT_SECRET` externo de al menos 32 bytes.
+La aplicación escucha en `http://127.0.0.1:3000`. La ruta `GET /health` devuelve `{"status":"ok"}`. La base usa memoria salvo que se indique `DB_PATH`. La ejecución en modo producción exige una clave `JWT_SECRET` de al menos 32 bytes inyectada por el entorno.
 
-| Método y ruta | Acceso y resultado |
-|---|---|
-| GET /health | Público, estado del proceso |
-| POST /users | Público, `{username,password}`; cuenta nueva con saldo cero; rechaza rol enviado por el cliente |
-| POST /login | Público, credenciales; devuelve JWT firmado y duración |
-| GET /accounts | Bearer JWT, solo cuentas del usuario |
-| GET /accounts/{id} | Bearer JWT, verifica propietario; 403 para acceso ajeno |
-| GET /accounts/{id}/movements | Bearer JWT y propiedad; últimos 100 movimientos |
-| POST /transfer | Bearer JWT, `{originAccount,targetAccount,amount}`; propietario de origen, saldo suficiente y transacción atómica |
+| Método y ruta | Propósito | Identidad |
+|---|---|---|
+| GET /health | Disponibilidad del proceso | Pública |
+| POST /users y POST /login | Registro y emisión de sesión | Pública, con límites |
+| GET /users/{id} | Perfil mínimo | Titular autenticado |
+| GET /accounts y GET /accounts/{id} | Cuentas y saldo | Titular autenticado |
+| GET /accounts/{id}/movements | Historial de movimientos | Titular autenticado |
+| POST /transfer | Débito y crédito atómicos | Titular de la cuenta de origen |
 
-`amount` es un entero en pesos chilenos ficticios, de 1 a 1.000.000. No hay endpoint de carga de fondos: las pruebas usan un fixture interno. Los datos personales reales no forman parte del laboratorio.
+## Evidencia y revisión
 
-## CI y controles
+Las bitácoras incluyen enlaces a ejecuciones concretas. Los reportes seleccionados quedan versionados para poder consultarlos después de que caduquen los artefactos de GitHub. Los ejercicios negativos de secretos, infraestructura e imagen sin firma tienen ejecuciones rojas previstas y su motivo se explica en la sesión correspondiente. El PR de entrega se evalúa con los controles regulares.
 
-Cada push a cualquier rama y cada PR a `main` ejecuta checkout, `npm ci`, build, pruebas con cobertura y publicación de `dist-<SHA>`. El artefacto se conserva 7 días; el reporte JUnit y cobertura quedan como evidencia. Un segundo job ejecuta Gitleaks sobre el historial. Los jobs tienen permisos mínimos y las acciones están fijadas por SHA. No hay despliegue automático.
+La sesión 2 pide un repositorio privado en la organización UBO-DevSecOps. Este repositorio personal es público. El equipo debe confirmar con el docente la modalidad de entrega, y cada integrante comprueba su segundo factor. La revisión independiente forma parte del flujo de integración a main. [Historial del adelanto](docs/validacion.md).
 
-Consultar [validación y pendientes](docs/validacion.md) para distinguir controles implementados, propuestos y configuración administrativa pendiente. Una política escrita o un archivo CODEOWNERS no activa por sí solo protección de ramas.
-
-## Docker
-
-```bash
-docker build -t midama-securebank:local .
-```
-
-El contenedor usa `USER node`; para ejecutarlo, inyectar `JWT_SECRET` desde un archivo local de entorno excluido de Git (`docker run --env-file ruta-local -p 127.0.0.1:3000:3000 midama-securebank:local`). No incluir secretos en comandos versionados, imágenes ni documentación. El Dockerfile usa una etiqueta de Node 24: fijar el digest aprobado y escanear la imagen corresponde al endurecimiento posterior. La construcción Docker aún debe validarse en un entorno con Docker.
-
-## Límites del laboratorio
-
-Esta base no está preparada para un banco real: faltan MFA, gestor central de secretos, TLS mediante gateway, auditoría externa inmutable, idempotencia de transferencias, monitoreo, respaldos, pruebas de carga, SAST/SCA/DAST completos y despliegue cloud. Los controles futuros se identifican en el backlog. La auditoría encadenada detecta alteraciones verificables por comparación, pero no equivale a almacenamiento WORM ni prueba legal de no repudio.
-
-## Fuentes
-
-Material del curso: sesiones 1 a 4 adjuntas. Referencias técnicas: [Node.js SQLite](https://nodejs.org/docs/latest-v24.x/api/sqlite.html), [GitHub CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners), [protección de ramas](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches), [STRIDE](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats).
+El [PR de entrega con el historial por sesión](https://github.com/miguelbriceno-sys/MIDAMA-SecureBank-API/pull/15) reúne las correcciones y su revisión. El aula virtual recibe el PDF y el JSON de la sesión 8. Las guías de las sesiones 7 y 8 piden parejas y grupos de dos a tres, respectivamente. En las sesiones 11 y 12 el ejercicio es individual. El equipo debe identificar a quienes corresponda cuando el aula solicite nombres.

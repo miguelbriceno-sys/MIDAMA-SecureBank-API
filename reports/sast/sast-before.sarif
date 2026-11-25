@@ -1,0 +1,78 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "toolExecutionNotifications": []
+        }
+      ],
+      "results": [
+        {
+          "fingerprints": {
+            "matchBasedId/v1": "requires login"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/bank.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "endColumn": 59,
+                  "endLine": 67,
+                  "snippet": {
+                    "text": "      const received = Buffer.from(signature, 'base64url');"
+                  },
+                  "startColumn": 24,
+                  "startLine": 67
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Comparar la firma HMAC con su representación base64url canónica antes de aceptar una sesión."
+          },
+          "properties": {},
+          "ruleId": "firma-hmac-representacion"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "Semgrep OSS",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "Comparar la firma HMAC con su representación base64url canónica antes de aceptar una sesión."
+              },
+              "help": {
+                "markdown": "Comparar la firma HMAC con su representación base64url canónica antes de aceptar una sesión.",
+                "text": "Comparar la firma HMAC con su representación base64url canónica antes de aceptar una sesión."
+              },
+              "id": "firma-hmac-representacion",
+              "name": "firma-hmac-representacion",
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "CWE-180",
+                  "OWASP-A07:2021",
+                  "security"
+                ]
+              },
+              "shortDescription": {
+                "text": "Semgrep Finding: firma-hmac-representacion"
+              }
+            }
+          ],
+          "semanticVersion": "1.145.0"
+        }
+      }
+    }
+  ],
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/schemas/sarif-schema-2.1.0.json"
+}

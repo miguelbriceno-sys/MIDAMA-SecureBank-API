@@ -1,0 +1,69 @@
+name: Verificar historial de la entrega
+on:
+  push:
+    branches: [evidencias/historial-01-13]
+    paths: [.github/workflows/verificar-historial.yml]
+permissions:
+  contents: write
+jobs:
+  firmar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Registrar las mismas revisiones con firma de GitHub Actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_REPOSITORY: miguelbriceno-sys/MIDAMA-SecureBank-API
+          INITIAL: c8e48a84ead957b7a24cc23e1851495e67aad0b0
+          FINAL: 0e3a420fa99d0087220e8475af624ae96471f5f4
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pathlib
+          import urllib.request
+
+          repository = os.environ["EXPECTED_REPOSITORY"]
+          assert os.environ["GITHUB_REPOSITORY"] == repository
+          base = os.environ["INITIAL"]
+          original = os.environ["FINAL"]
+          url = f"https://api.github.com/repos/{repository}/git/commits"
+          headers = {
+              "Authorization": "Bearer " + os.environ["GH_TOKEN"],
+              "Accept": "application/vnd.github+json",
+              "Content-Type": "application/json",
+              "User-Agent": "SecureBank-laboratorio",
+          }
+
+          def git_commit(endpoint, data=None):
+              body = json.dumps(data).encode("utf-8") if data is not None else None
+              request = urllib.request.Request(endpoint, data=body, headers=headers)
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  return json.load(response)
+
+          snapshots = []
+          cursor = original
+          while cursor != base:
+              entry = git_commit(f"{url}/{cursor}")
+              assert len(entry["parents"]) == 1 and len(snapshots) < 21
+              snapshots.append(entry)
+              cursor = entry["parents"][0]["sha"]
+          assert len(snapshots) == 21
+
+          parent = base
+          mapping = []
+          for entry in reversed(snapshots):
+              tree = entry["tree"]["sha"]
+              saved = git_commit(url, {"message": entry["message"], "tree": tree, "parents": [parent]})
+              assert saved["tree"]["sha"] == tree and saved["parents"][0]["sha"] == parent
+              assert saved["verification"]["verified"], saved["verification"]["reason"]
+              parent = saved["sha"]
+              mapping.append({"original": entry["sha"], "firmado": parent, "arbol": tree})
+              print(f'{entry["sha"][:8]} -> {parent}  {entry["message"].splitlines()[0]}')
+          pathlib.Path("historial-firmado.json").write_text(json.dumps(mapping, indent=2) + "\n")
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: historial-firmado
+          path: historial-firmado.json
+          retention-days: 30

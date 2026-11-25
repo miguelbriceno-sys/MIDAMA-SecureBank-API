@@ -79,8 +79,25 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with: {name: "dast-${{ github.sha }}", path: evidence/dast/, retention-days: 14, if-no-files-found: error}
+  gate:
+    needs: [secrets-scan, unit-tests, sast, sca, dast]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with: {pattern: "*-${{ github.sha }}", path: inputs}
+      - run: scripts/ci/tool.sh opa
+      - run: |
+          opa test policy -v
+          python3 scripts/ci/metrics.py inputs evidence/gate/metrics.json
+          opa eval -f pretty -d policy/security-policy-v1.rego -i evidence/gate/metrics.json data.securepipeline.gate > evidence/gate/decision.json
+          opa eval --fail -d policy/security-policy-v1.rego -i evidence/gate/metrics.json 'data.securepipeline.gate.allow == true'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "gate-${{ github.sha }}", path: evidence/gate/, retention-days: 14, if-no-files-found: error}
   build-test:
-    needs: [unit-tests, sast, sca, dast]
+    needs: [unit-tests, sast, sca, dast, gate]
     if: always()
     runs-on: ubuntu-latest
     steps:

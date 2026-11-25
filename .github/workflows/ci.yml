@@ -68,8 +68,19 @@ jobs:
         with: {name: "sca-${{ github.sha }}", path: evidence/sca/, retention-days: 14, if-no-files-found: error}
       - name: Retener hallazgos altos para revisión
         run: jq -e '.decision == "CONTINUAR"' evidence/sca/sca-decision.json
+  dast:
+    needs: sca
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: scripts/ci/dast.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "dast-${{ github.sha }}", path: evidence/dast/, retention-days: 14, if-no-files-found: error}
   build-test:
-    needs: [unit-tests, sast, sca]
+    needs: [unit-tests, sast, sca, dast]
     if: always()
     runs-on: ubuntu-latest
     steps:

@@ -74,6 +74,13 @@ export function createBank({ database = ':memory:', jwtSecret = randomBytes(32),
       return user;
     } catch { fail(401, 'Token inválido o expirado.'); }
   }
+  function profile(user, requestedId) {
+    if (requestedId !== user.id) {
+      record('profile', user.id, 'denied');
+      fail(403, 'Acceso denegado.');
+    }
+    return db.prepare('SELECT id, username FROM users WHERE id = ?').get(user.id);
+  }
   function account(user, accountId) {
     const row = db.prepare('SELECT id, owner, balance FROM accounts WHERE id = ?').get(accountId);
     if (!row || row.owner !== user.id) { record('account', user.id, 'denied'); fail(403, 'Acceso denegado.'); }
@@ -103,7 +110,7 @@ export function createBank({ database = ':memory:', jwtSecret = randomBytes(32),
     record('transfer', user.id, 'allowed');
     return result;
   }
-  return { register, login, authenticate, account, accounts, movements, transfer, audit,
+  return { register, login, authenticate, profile, account, accounts, movements, transfer, audit,
     close: () => db.close(),
     // Solo fixture de pruebas/local: no existe endpoint HTTP de carga de saldo.
     fundForTest(accountId, amount) {

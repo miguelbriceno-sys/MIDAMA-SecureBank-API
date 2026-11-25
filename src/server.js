@@ -2,12 +2,16 @@ import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
 import { createBank, BankError } from './bank.js';
 
-export function createApp({ bank = createBank(), limit = 60, windowMs = 60000, now = () => Date.now() } = {}) {
+export function createApp({ bank = createBank(), httpsOnly = false, limit = 60, windowMs = 60000, now = () => Date.now() } = {}) {
   const buckets = new Map();
   const server = createServer(async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    if (httpsOnly) res.setHeader('Strict-Transport-Security', 'max-age=31536000');
     const send = (status, data) => { res.writeHead(status); res.end(JSON.stringify(data)); };
     try {
       const url = new URL(req.url, 'http://localhost');
@@ -36,6 +40,8 @@ export function createApp({ bank = createBank(), limit = 60, windowMs = 60000, n
       if (req.method === 'POST' && url.pathname === '/login') return send(200, bank.login(body));
       const bearer = req.headers.authorization?.match(/^Bearer (\S+)$/)?.[1];
       const user = bank.authenticate(bearer);
+      const profile = url.pathname.match(/^\/users\/([^/]+)$/);
+      if (req.method === 'GET' && profile) return send(200, bank.profile(user, profile[1]));
       if (req.method === 'GET' && url.pathname === '/accounts') return send(200, bank.accounts(user));
       const match = url.pathname.match(/^\/accounts\/([^/]+)(\/movements)?$/);
       if (req.method === 'GET' && match) return send(200, match[2] ? bank.movements(user, match[1]) : bank.account(user, match[1]));
@@ -52,7 +58,7 @@ export function createApp({ bank = createBank(), limit = 60, windowMs = 60000, n
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) throw new Error('JWT_SECRET es obligatorio en producción.');
   const bank = createBank({ database: process.env.DB_PATH ?? ':memory:', jwtSecret: process.env.JWT_SECRET, onAudit: entry => console.log(JSON.stringify(entry)) });
-  const server = createApp({ bank });
+  const server = createApp({ bank, httpsOnly: process.env.HTTPS_ONLY === 'true' });
   server.listen(Number(process.env.PORT ?? 3000), process.env.HOST ?? '127.0.0.1', () => console.log('SecureBank API iniciada.'));
   for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => server.close(() => { bank.close(); process.exit(0); }));
 }

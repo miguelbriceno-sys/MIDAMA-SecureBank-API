@@ -39,3 +39,23 @@ test('HTTP rate limit bloquea abuso y expira', async t => {
   assert.equal((await post('/login', {})).status, 429);
   clock += 1001; assert.equal((await post('/login', {})).status, 401);
 });
+
+test('perfil propio, denegación auditada y cabeceras de seguridad', async t => {
+  const { bank, base, post } = await app(t, { httpsOnly: true });
+  const password = randomBytes(24).toString('hex');
+  const person = await (await post('/users', { username: 'titular', password })).json();
+  const peer = await (await post('/users', { username: 'otro', password: randomBytes(24).toString('hex') })).json();
+  const { token } = await (await post('/login', { username: 'titular', password })).json();
+  const headers = { Authorization: 'Bearer ' + token };
+  const own = await fetch(base + '/users/' + person.id, { headers });
+  assert.equal(own.status, 200);
+  assert.deepEqual(await own.json(), { id: person.id, username: 'titular' });
+  const denied = await fetch(base + '/users/' + peer.id, { headers });
+  assert.equal(denied.status, 403);
+  assert.equal((await denied.json()).error, 'Acceso denegado.');
+  assert.ok(bank.audit.some(item => item.event === 'profile' && item.outcome === 'denied'));
+  assert.equal((await fetch(base + '/users/' + person.id)).status, 401);
+  assert.equal(own.headers.get('x-frame-options'), 'DENY');
+  assert.match(own.headers.get('content-security-policy'), /frame-ancestors 'none'/);
+  assert.equal(own.headers.get('strict-transport-security'), 'max-age=31536000');
+});

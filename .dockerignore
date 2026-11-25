@@ -9,3 +9,15 @@ tests
 *.pem
 *.key
 *.sqlite*
+reports
+evidence
+inputs
+policy
+security
+terraform
+k8s
+docker
+scripts
+.githooks
+*.log
+*.xml

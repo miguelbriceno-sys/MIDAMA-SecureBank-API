@@ -1,0 +1,35 @@
+name: Evidencia S13 - rechazo de imagen sin firma
+on:
+  push:
+    branches: [evidencia/s13-sin-firma]
+permissions: {contents: read}
+jobs:
+  verificar-imagen-sin-firma:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - run: scripts/ci/tool.sh cosign
+      - name: Verificar y bloquear una imagen disponible sin firma
+        run: |
+          set -euo pipefail
+          docker run -d --rm -p 127.0.0.1:5000:5000 --name registro registry:2
+          for _ in {1..20}; do curl -fsS http://127.0.0.1:5000/v2/ && break; sleep 1; done
+          tag=127.0.0.1:5000/securebank:sin-firma
+          docker build -t "$tag" .
+          docker push "$tag"
+          ref=$(docker inspect --format '{{index .RepoDigests 0}}' "$tag")
+          test -n "$ref"
+          set +e
+          cosign verify --allow-insecure-registry \
+            --certificate-identity "https://github.com/$GITHUB_REPOSITORY/.github/workflows/supply-chain.yml@refs/heads/main" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com "$ref" > rechazo.txt 2>&1
+          rc=$?
+          set -e
+          cat rechazo.txt
+          [[ "$rc" != 0 ]] && grep -Eiq 'signature|manifest unknown|MANIFEST_UNKNOWN' rechazo.txt || exit 2
+          echo "Digest existente rechazado por falta de firma: $ref"
+          exit 1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: rechazo-de-imagen, path: rechazo.txt, if-no-files-found: error}

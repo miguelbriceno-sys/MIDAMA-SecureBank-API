@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: securebank-worker
+  namespace: securebank
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: securebank-worker}
+  template:
+    metadata:
+      labels: {app: securebank-worker}
+    spec:
+      serviceAccountName: securebank-runtime
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: worker
+          image: ghcr.io/miguelbriceno-sys/midama-securebank-api-lab@sha256:ab1517355a5c0116a23548551ac62edf45b473dee42652b1bb14e5bff02d3be9
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+          args: ["/lab/worker.js"]
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+            - {name: scripts, mountPath: /lab, readOnly: true}
+      volumes:
+        - {name: tmp, emptyDir: {sizeLimit: 16Mi}}
+        - name: scripts
+          configMap:
+            name: securebank-config
+            items: [{key: worker.js, path: worker.js}]

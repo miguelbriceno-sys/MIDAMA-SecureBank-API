@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: securebank-config
+  namespace: securebank
+data:
+  PORT: "3000"
+  DB_PATH: /data/bank.sqlite
+  frontend.js: |
+    const { createServer } = require('node:http');
+    createServer((req, res) => {
+      res.writeHead(req.url === '/' ? 200 : 404, {
+        'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store'
+      });
+      res.end(req.url === '/' ? 'SecureBank, entorno de laboratorio.\n' : '');
+    }).listen(8080, '0.0.0.0');
+  worker.js: |
+    async function comprobar() {
+      try {
+        const response = await fetch('http://securebank-api:3000/health', {
+          signal: AbortSignal.timeout(3000)
+        });
+        console.log(JSON.stringify({ servicio: 'api', disponible: response.ok }));
+      } catch {
+        console.log(JSON.stringify({ servicio: 'api', disponible: false }));
+      }
+    }
+    comprobar();
+    setInterval(comprobar, 60000);
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: securebank-api
+  namespace: securebank
+spec:
+  selector: {app: securebank-api}
+  ports: [{name: http, port: 3000, targetPort: http}]
+  type: ClusterIP

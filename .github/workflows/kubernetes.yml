@@ -1,0 +1,27 @@
+name: Kubernetes - endurecimiento S12
+on:
+  push:
+    branches: [main, entrega/bitacora-devsecops-01-13]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions: {contents: read, packages: read}
+jobs:
+  laboratorio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - name: Instalar herramientas verificadas
+        run: scripts/ci/tool.sh kind && scripts/ci/tool.sh kubesec
+      - name: Comprobar manifiestos y runtime en Kind
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          ref=$(awk '$1=="image:" {print $2}' k8s/hardened/deployment.hardened.yaml)
+          k8s/kind-test.sh "$ref"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with: {name: "kubernetes-${{ github.sha }}", path: evidence/k8s, retention-days: 14}
